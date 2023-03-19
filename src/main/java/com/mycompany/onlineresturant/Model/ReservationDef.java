@@ -188,4 +188,34 @@ public class ReservationDef implements Serializable {
         }
     }
     
+    public String bookTable(ReservationDef r){
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory(Database.getPuName());
+        EntityManager em = emf.createEntityManager();
+        
+        try
+        {
+            StoredProcedureQuery spq = em.createStoredProcedureQuery("bookTable");
+            spq.registerStoredProcedureParameter("dateIN", String.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("useridIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("qtyIN", Integer.class, ParameterMode.IN);
+            spq.registerStoredProcedureParameter("isdefinedOUT", Integer.class, ParameterMode.OUT);
+            spq.setParameter("dateIN", r.getDateTime());
+            spq.setParameter("useridIN", r.getUserId());
+            spq.setParameter("qtyIN", r.getQty());
+            spq.execute();
+            
+            
+            return spq.getOutputParameterValue("isdefinedOUT").toString();
+            
+        }
+        catch(Exception ex){
+            return ex.getMessage();
+        }
+        finally{
+            em.clear();
+            em.close();
+            emf.close();
+        }
+    }
+    
 }
